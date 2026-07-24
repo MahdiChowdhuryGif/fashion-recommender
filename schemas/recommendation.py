@@ -46,6 +46,7 @@ class HealthResponse(BaseModel):
     status: str
     model_loaded: bool
     dataset_images: int
+    model_error: str | None = None
 
 
 # --------------------------------------------------

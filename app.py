@@ -63,10 +63,27 @@ app.mount(
 
 print("Loading recommendation model...")
 
-recommender = FashionRecommender()
+recommender = None
+model_loaded = False
+model_error = None
+
+try:
+
+    recommender = FashionRecommender()
+
+    model_loaded = True
+
+    print("Recommendation model loaded successfully.")
+
+except Exception as e:
+
+    model_error = str(e)
+
+    print("\nWARNING: Recommendation model could not be loaded.")
+
+    print(model_error)
 
 print("API ready.\n")
-
 
 # --------------------------------------------------
 # Home Endpoint
@@ -94,10 +111,22 @@ def home():
 @app.get("/health", response_model=HealthResponse)
 def health():
 
+    dataset_images = 0
+
+    if model_loaded and recommender is not None:
+
+        dataset_images = len(recommender.filenames)
+
     return HealthResponse(
-        status="healthy",
-        model_loaded=True,
-        dataset_images=len(recommender.filenames),
+
+        status="healthy" if model_loaded else "degraded",
+
+        model_loaded=model_loaded,
+
+        dataset_images=dataset_images,
+
+        model_error=model_error
+
     )
 
 
@@ -109,6 +138,16 @@ def health():
 async def recommend(file: UploadFile = File(...)):
 
     start_time = time.perf_counter()
+
+    if not model_loaded or recommender is None:
+
+        raise HTTPException(
+
+            status_code=503,
+
+            detail="Recommendation model is unavailable. Check the /health endpoint."
+
+        )
 
     if not file.content_type.startswith("image/"):
         raise HTTPException(
