@@ -1,0 +1,7 @@
+DATA CLEANING REPORT
+=====================
+
+Total Images: 50293
+Valid Images: 50293
+Corrupted Images: 0
+

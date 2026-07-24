@@ -1,0 +1,54 @@
+# ==========================================
+# Python
+# ==========================================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+
+venv/
+.env/
+
+# VS Code
+
+.vscode/
+
+# PyTorch
+
+*.pt
+*.pth
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Uploads
+
+uploads/*
+
+data/raw/images/
+
+# Generated Reports
+
+data/reports/*.png
+
+# Processed Embeddings
+
+data/processed/image_embeddings.npy
+data/processed/image_filenames.csv
+
+# Logs
+
+*.log
+
+# Pytest
+
+.pytest_cache/
+
+# Jupyter
+
+.ipynb_checkpoints/
