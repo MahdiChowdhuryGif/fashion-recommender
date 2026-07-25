@@ -38,11 +38,6 @@ data/raw/images/
 
 data/reports/*.png
 
-# Generated Embeddings
-
-data/processed/image_embeddings.npy
-data/processed/image_filenames.csv
-
 # Logs
 
 *.log

@@ -7,7 +7,7 @@ import pandas as pd
 # Configuration
 # ----------------------------------
 
-SUBSET_SIZE = 5000       # Change this if you want a different deployment size
+SUBSET_SIZE = 2000       # Change this if you want a different deployment size
 RANDOM_SEED = 42         # Keeps the same random sample every run
 
 # ----------------------------------
@@ -50,6 +50,10 @@ DEPLOYMENT_CSV = (
 # Create folders
 # ----------------------------------
 
+if DEPLOYMENT_IMAGES.exists():
+
+    shutil.rmtree(DEPLOYMENT_IMAGES)
+
 DEPLOYMENT_FOLDER.mkdir(
     parents=True,
     exist_ok=True
@@ -59,7 +63,6 @@ DEPLOYMENT_IMAGES.mkdir(
     parents=True,
     exist_ok=True
 )
-
 # ----------------------------------
 # Load cleaned image list
 # ----------------------------------
