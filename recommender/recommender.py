@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import List, Dict, Union
+import os
 
 import numpy as np
 import pandas as pd
@@ -19,12 +20,37 @@ class FashionRecommender:
 
         self.project_root = Path(__file__).resolve().parent.parent
 
-        self.image_folder = (
-            self.project_root /
-            "data" /
-            "raw" /
-            "images"
-        )
+        # ----------------------------------
+        # Dataset Mode
+        # ----------------------------------
+
+        dataset_mode = os.getenv("DATASET_MODE", "full").lower()
+
+        if dataset_mode == "deployment":
+
+            print("FashionRecommender: DEPLOYMENT mode")
+
+            self.image_folder = (
+                self.project_root /
+                "data" /
+                "deployment" /
+                "images"
+            )
+
+        else:
+
+            print("FashionRecommender: FULL DATASET mode")
+
+            self.image_folder = (
+                self.project_root /
+                "data" /
+                "raw" /
+                "images"
+            )
+
+        # ----------------------------------
+        # Embedding Files
+        # ----------------------------------
 
         embeddings_file = (
             self.project_root /
@@ -43,6 +69,8 @@ class FashionRecommender:
         print("Loading embeddings...")
 
         self.embeddings = np.load(embeddings_file)
+
+        print(f"Embedding dtype: {self.embeddings.dtype}")
 
         self.filenames = (
             pd.read_csv(filenames_file)["filename"]
@@ -161,13 +189,27 @@ def main():
 
     project_root = Path(__file__).resolve().parent.parent
 
-    query_image = (
-        project_root /
-        "data" /
-        "raw" /
-        "images" /
-        "0000cdba64314d84a49ed1c266589cc0.jpg"
-    )
+    dataset_mode = os.getenv("DATASET_MODE", "full").lower()
+
+    if dataset_mode == "deployment":
+
+        query_image = (
+            project_root /
+            "data" /
+            "deployment" /
+            "images" /
+            "0000cdba64314d84a49ed1c266589cc0.jpg"
+        )
+
+    else:
+
+        query_image = (
+            project_root /
+            "data" /
+            "raw" /
+            "images" /
+            "0000cdba64314d84a49ed1c266589cc0.jpg"
+        )
 
     recommender = FashionRecommender()
 

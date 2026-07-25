@@ -26,6 +26,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
+print("STEP 1: FastAPI app created")
+
 # --------------------------------------------------
 # Enable CORS
 # --------------------------------------------------
@@ -72,6 +74,8 @@ else:
         "images"
     )
 
+print("STEP 2: Dataset mode configured")
+
 UPLOAD_FOLDER = PROJECT_ROOT / "uploads"
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 
@@ -117,7 +121,7 @@ if not FILENAMES_FILE.exists():
 
     )
 
-print("✓ Embedding files found.")
+print("STEP 3: Embedding files validated")
 
 # --------------------------------------------------
 # Serve dataset images
@@ -129,6 +133,7 @@ app.mount(
     name="images",
 )
 
+print("STEP 4: Static files mounted")
 # --------------------------------------------------
 # Load recommender once
 # --------------------------------------------------

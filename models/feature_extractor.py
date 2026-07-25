@@ -49,4 +49,4 @@ class FeatureExtractor:
 
             embedding = self.model(image)
 
-        return embedding.squeeze().cpu().numpy().astype(np.float32)
+        return embedding.squeeze().cpu().numpy().astype(np.float16)
