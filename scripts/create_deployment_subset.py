@@ -7,7 +7,7 @@ import pandas as pd
 # Configuration
 # ----------------------------------
 
-SUBSET_SIZE = 2000       # Change this if you want a different deployment size
+SUBSET_SIZE = 1000       # Change this if you want a different deployment size
 RANDOM_SEED = 42         # Keeps the same random sample every run
 
 # ----------------------------------

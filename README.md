@@ -55,7 +55,7 @@ The recommendation system follows these stages:
 
 ### Deployment Dataset
 
-A lightweight subset containing 2,000 images.
+A lightweight subset containing 1,000 images.
 
 Used for Render deployment to reduce storage requirements and startup time.
 
