@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import time
 
 import numpy as np
@@ -10,55 +11,119 @@ from models.feature_extractor import FeatureExtractor
 def main():
 
     # ----------------------------------
+    # Configuration
+    # ----------------------------------
+
+    DATASET_MODE = os.getenv("DATASET_MODE", "full").lower()
+
+    DEPLOYMENT_MODE = DATASET_MODE == "deployment"
+
+    TEST_MODE = False
+    TEST_SIZE = 100
+
+    # ----------------------------------
     # Paths
     # ----------------------------------
 
     PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-    VALID_IMAGES = PROJECT_ROOT / "data" / "processed" / "valid_images.csv"
-    IMAGE_FOLDER = PROJECT_ROOT / "data" / "raw" / "images"
+    if DEPLOYMENT_MODE:
 
-    OUTPUT_DIR = PROJECT_ROOT / "data" / "processed"
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        print("\nRunning in DEPLOYMENT mode")
 
-    EMBEDDINGS_FILE = OUTPUT_DIR / "image_embeddings.npy"
-    FILENAMES_FILE = OUTPUT_DIR / "image_filenames.csv"
+        VALID_IMAGES = (
+            PROJECT_ROOT /
+            "data" /
+            "deployment" /
+            "valid_images.csv"
+        )
 
-    # ----------------------------------
-    # Settings
-    # ----------------------------------
+        IMAGE_FOLDER = (
+            PROJECT_ROOT /
+            "data" /
+            "deployment" /
+            "images"
+        )
 
-    TEST_MODE = False      # True = process a small subset
-    TEST_SIZE = 100        # Number of images in test mode
+    else:
+
+        print("\nRunning in FULL DATASET mode")
+
+        VALID_IMAGES = (
+            PROJECT_ROOT /
+            "data" /
+            "processed" /
+            "valid_images.csv"
+        )
+
+        IMAGE_FOLDER = (
+            PROJECT_ROOT /
+            "data" /
+            "raw" /
+            "images"
+        )
+
+    OUTPUT_DIR = (
+        PROJECT_ROOT /
+        "data" /
+        "processed"
+    )
+
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    EMBEDDINGS_FILE = (
+        OUTPUT_DIR /
+        "image_embeddings.npy"
+    )
+
+    FILENAMES_FILE = (
+        OUTPUT_DIR /
+        "image_filenames.csv"
+    )
 
     # ----------------------------------
     # Load Feature Extractor
     # ----------------------------------
 
+    print("\nLoading ResNet50 feature extractor...")
+
     extractor = FeatureExtractor()
 
-    print(f"\nUsing device: {extractor.device}")
+    print(f"Using device: {extractor.device}")
 
     # ----------------------------------
     # Load image list
     # ----------------------------------
 
+    print("\nLoading image list...")
+
     df = pd.read_csv(VALID_IMAGES)
 
     if TEST_MODE:
+
         filenames = df["filename"].tolist()[:TEST_SIZE]
+
     else:
+
         filenames = df["filename"].tolist()
 
     num_images = len(filenames)
 
-    print(f"\nProcessing {num_images:,} images...\n")
+    print(f"Found {num_images:,} images.")
 
     # ----------------------------------
     # Create embedding array
     # ----------------------------------
 
-    embeddings = np.zeros((num_images, 2048), dtype=np.float32)
+    print("\nGenerating embeddings...\n")
+
+    embeddings = np.zeros(
+        (num_images, 2048),
+        dtype=np.float32
+    )
 
     start_time = time.time()
 
@@ -85,31 +150,42 @@ def main():
             )
 
     # ----------------------------------
-    # Save results
+    # Save embeddings
     # ----------------------------------
 
     print("\nSaving embeddings...")
 
-    np.save(EMBEDDINGS_FILE, embeddings)
+    np.save(
+        EMBEDDINGS_FILE,
+        embeddings
+    )
 
     pd.DataFrame({
+
         "filename": filenames
+
     }).to_csv(
+
         FILENAMES_FILE,
+
         index=False
+
     )
 
     elapsed = time.time() - start_time
 
-    print("\nFinished!")
+    print("\n----------------------------------------")
+    print("Embedding Generation Complete")
+    print("----------------------------------------")
 
-    print(f"Embedding shape: {embeddings.shape}")
+    print(f"Images processed : {num_images:,}")
+    print(f"Embedding shape  : {embeddings.shape}")
+    print(f"Time taken       : {elapsed:.2f} seconds")
 
-    print(f"Total time: {elapsed:.2f} seconds")
+    print("\nSaved files:")
 
-    print(f"\nEmbeddings saved to:\n{EMBEDDINGS_FILE}")
-
-    print(f"\nFilenames saved to:\n{FILENAMES_FILE}")
+    print(f"Embeddings : {EMBEDDINGS_FILE}")
+    print(f"Filenames  : {FILENAMES_FILE}")
 
 
 if __name__ == "__main__":

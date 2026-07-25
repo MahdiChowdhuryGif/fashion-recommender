@@ -1,45 +1,77 @@
 from pathlib import Path
 import argparse
+import os
 import time
+import pandas as pd
 
 from scripts.create_embeddings import main as create_embeddings
 from scripts.evaluate import main as evaluate
 
 
+# --------------------------------------------------
+# Dataset Mode
+# --------------------------------------------------
+
+DATASET_MODE = os.getenv("DATASET_MODE", "full").lower()
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+if DATASET_MODE == "deployment":
+
+    IMAGE_FOLDER = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "images"
+    )
+
+    VALID_IMAGES = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "valid_images.csv"
+    )
+
+else:
+
+    IMAGE_FOLDER = (
+        PROJECT_ROOT /
+        "data" /
+        "raw" /
+        "images"
+    )
+
+    VALID_IMAGES = (
+        PROJECT_ROOT /
+        "data" /
+        "processed" /
+        "valid_images.csv"
+    )
+
+
 def print_header():
+
     print("=" * 60)
     print("        Fashion Recommendation AI Pipeline")
     print("=" * 60)
+
+    print(f"\nRunning in {DATASET_MODE.upper()} mode")
 
 
 def check_project():
 
     print("\n[1/4] Checking project structure...\n")
 
-    project_root = Path(__file__).resolve().parent
+    if not VALID_IMAGES.exists():
 
-    valid_images = (
-        project_root /
-        "data" /
-        "processed" /
-        "valid_images.csv"
-    )
-
-    image_folder = (
-        project_root /
-        "data" /
-        "raw" /
-        "images"
-    )
-
-    if not valid_images.exists():
         raise FileNotFoundError(
-            f"Missing file:\n{valid_images}"
+            f"Missing file:\n{VALID_IMAGES}"
         )
 
-    if not image_folder.exists():
+    if not IMAGE_FOLDER.exists():
+
         raise FileNotFoundError(
-            f"Missing folder:\n{image_folder}"
+            f"Missing folder:\n{IMAGE_FOLDER}"
         )
 
     print("✓ Dataset found")
@@ -48,17 +80,15 @@ def check_project():
 
 def embeddings_exist():
 
-    project_root = Path(__file__).resolve().parent
-
     embeddings = (
-        project_root /
+        PROJECT_ROOT /
         "data" /
         "processed" /
         "image_embeddings.npy"
     )
 
     filenames = (
-        project_root /
+        PROJECT_ROOT /
         "data" /
         "processed" /
         "image_filenames.csv"
@@ -95,12 +125,14 @@ def main():
     # Step 2
     # --------------------------------------------------
 
-    print("\n[2/4] Image Embedding Generation\n")
+    print(
+    f"\n[2/4] Image Embedding Generation "
+    f"({DATASET_MODE.title()} Mode)\n"
+    )
 
     if embeddings_exist() and not args.force:
 
         print("✓ Existing embeddings found")
-
         print("Skipping embedding generation.")
 
     else:
@@ -127,26 +159,27 @@ def main():
 
     elapsed = time.time() - start_time
 
-    project_root = Path(__file__).resolve().parent
-
     embedding_file = (
-        project_root /
+        PROJECT_ROOT /
         "data" /
         "processed" /
         "image_embeddings.npy"
     )
 
     report_file = (
-        project_root /
+        PROJECT_ROOT /
         "data" /
         "reports" /
         "recommendation_results.png"
     )
 
+    dataset_size = len(pd.read_csv(VALID_IMAGES))
+
     print("\n[4/4] Pipeline Summary\n")
 
-    print(f"Dataset Images        : 50,293")
-    print(f"Embedding Size        : 2048")
+    print(f"Dataset Mode          : {DATASET_MODE.title()}")
+    print(f"Dataset Images        : {dataset_size:,}")
+    print("Embedding Size        : 2048")
     print(f"Embeddings File       : {embedding_file}")
     print(f"Evaluation Report     : {report_file}")
     print(f"Total Execution Time  : {elapsed:.2f} seconds")

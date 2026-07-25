@@ -2,6 +2,8 @@ from pathlib import Path
 import shutil
 import uuid
 import time
+import os
+
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,10 +44,80 @@ app.add_middleware(
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
-IMAGE_FOLDER = PROJECT_ROOT / "data" / "raw" / "images"
+# ----------------------------------
+# Dataset Mode
+# ----------------------------------
+
+DATASET_MODE = os.getenv("DATASET_MODE", "full").lower()
+
+if DATASET_MODE == "deployment":
+
+    print("Running in DEPLOYMENT mode")
+
+    IMAGE_FOLDER = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "images"
+    )
+
+else:
+
+    print("Running in FULL DATASET mode")
+
+    IMAGE_FOLDER = (
+        PROJECT_ROOT /
+        "data" /
+        "raw" /
+        "images"
+    )
 
 UPLOAD_FOLDER = PROJECT_ROOT / "uploads"
 UPLOAD_FOLDER.mkdir(exist_ok=True)
+
+# --------------------------------------------------
+# Check embeddings
+# --------------------------------------------------
+
+# --------------------------------------------------
+# Validate required model files
+# --------------------------------------------------
+
+EMBEDDINGS_FILE = (
+    PROJECT_ROOT /
+    "data" /
+    "processed" /
+    "image_embeddings.npy"
+)
+
+FILENAMES_FILE = (
+    PROJECT_ROOT /
+    "data" /
+    "processed" /
+    "image_filenames.csv"
+)
+
+if not EMBEDDINGS_FILE.exists():
+
+    raise FileNotFoundError(
+
+        f"\nMissing embedding file:\n"
+        f"{EMBEDDINGS_FILE}\n\n"
+        "Run 'py run_pipeline.py' before starting the API."
+
+    )
+
+if not FILENAMES_FILE.exists():
+
+    raise FileNotFoundError(
+
+        f"\nMissing filename index:\n"
+        f"{FILENAMES_FILE}\n\n"
+        "Run 'py run_pipeline.py' before starting the API."
+
+    )
+
+print("✓ Embedding files found.")
 
 # --------------------------------------------------
 # Serve dataset images

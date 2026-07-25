@@ -53,6 +53,36 @@ The recommendation system follows these stages:
 
 ---
 
+### Deployment Dataset
+
+A lightweight subset containing 5,000 images.
+
+Used for Render deployment to reduce storage requirements and startup time.
+
+Render should have
+
+DATASET_MODE=deployment
+
+configured as an environment variable.
+
+## Dataset Modes
+
+The project supports two dataset modes.
+
+### Full Dataset
+
+Used during local development.
+
+Contains approximately 50,000 fashion images.
+
+Run:
+
+py run_pipeline.py
+
+or
+
+DATASET_MODE=full
+
 ## Technologies
 
 ### Machine Learning
@@ -79,7 +109,6 @@ The recommendation system follows these stages:
 
 ## Project Structure
 
-```text
 fashion-recommender/
 
 ├── app.py
@@ -87,8 +116,15 @@ fashion-recommender/
 ├── README.md
 │
 ├── data/
+│   ├── deployment/
+│   │   ├── images
+│   │   └── valid_images.csv
 │   ├── raw/
+│   │    └── outfits.csv
 │   └── processed/
+│       ├── image_embeddings.npy
+│       ├── image_filenames.csv
+│       └── valid_images.csv
 │
 ├── frontend/
 │   ├── index.html
