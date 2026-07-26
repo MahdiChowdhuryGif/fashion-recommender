@@ -2,7 +2,23 @@
 
 An AI-powered fashion recommendation system that finds visually similar clothing items using deep learning image embeddings.
 
-The application uses a pretrained ResNet-50 convolutional neural network to extract image features and recommends similar fashion items using cosine similarity. A FastAPI backend provides the recommendation API, while a responsive HTML, CSS, and JavaScript frontend allows users to upload an image and view recommendations.
+The application uses a pretrained **ResNet-50** convolutional neural network to extract image features and recommends similar fashion items using **cosine similarity**. A FastAPI backend provides the recommendation API, while a responsive HTML, CSS, and JavaScript frontend allows users to upload an image and view recommendations.
+
+---
+
+# Live Demo
+
+**Frontend**
+
+https://fashion-recommender-frontend.onrender.com/
+
+**Backend API**
+
+https://fashion-recommender-1r1l.onrender.com
+
+**API Documentation**
+
+https://fashion-recommender-1r1l.onrender.com/docs
 
 ---
 
@@ -38,50 +54,66 @@ The recommendation system follows these stages:
 
 ## Dataset
 
-- Fashion image dataset
+- DeepFashion image dataset
 - Total processed images: **50,293**
 - Feature vector size: **2048 dimensions**
 - Feature extractor: **ResNet-50 (ImageNet pretrained)**
-- This project uses the DeepFashion dataset. Due to GitHub size limitations, the dataset is not included.
-    Download the dataset from:
 
-    https://www.kaggle.com/datasets/kaborg15/vibrent-clothes-rental-
+Due to GitHub file size limitations, the original dataset is **not included**.
 
-    Place the images here:
+Download the dataset from:
 
-    data/raw/images/
+https://www.kaggle.com/datasets/kaborg15/vibrent-clothes-rental-
+
+Place the images inside:
+
+```text
+data/raw/images/
+```
 
 ---
 
-### Deployment Dataset
-
-A lightweight subset containing 2,000 images.
-
-Used for Render deployment to reduce storage requirements and startup time.
-
-Render should have
-
-DATASET_MODE=deployment
-
-configured as an environment variable.
-
 ## Dataset Modes
 
-The project supports two dataset modes.
+The project supports two operating modes.
 
 ### Full Dataset
 
 Used during local development.
 
-Contains approximately 50,000 fashion images.
+- Approximately **50,293 images**
+- Produces the highest quality recommendations
 
-Run:
+Run the pipeline:
 
+```bash
 py run_pipeline.py
+```
 
-or
+or set
 
+```text
 DATASET_MODE=full
+```
+
+---
+
+### Deployment Dataset
+
+Used for cloud deployment.
+
+- **2,000 images**
+- Reduced storage requirements
+- Faster startup time
+- Lower memory usage
+
+Render should have the following environment variable configured:
+
+```text
+DATASET_MODE=deployment
+```
+
+---
 
 ## Technologies
 
@@ -92,6 +124,8 @@ DATASET_MODE=full
 - Torchvision
 - NumPy
 - Scikit-learn
+- ResNet-50
+- Cosine Similarity
 
 ### Backend
 
@@ -109,18 +143,19 @@ DATASET_MODE=full
 
 ## Project Structure
 
+```text
 fashion-recommender/
-
 ├── app.py
+├── run_pipeline.py
 ├── requirements.txt
 ├── README.md
 │
 ├── data/
 │   ├── deployment/
-│   │   ├── images
+│   │   ├── images/
 │   │   └── valid_images.csv
 │   ├── raw/
-│   │    └── outfits.csv
+│   │   └── outfits.csv
 │   └── processed/
 │       ├── image_embeddings.npy
 │       ├── image_filenames.csv
@@ -142,6 +177,7 @@ fashion-recommender/
 │
 ├── scripts/
 │   ├── create_embeddings.py
+│   ├── create_deployment_subset.py
 │   └── evaluate.py
 │
 └── uploads/
@@ -149,36 +185,35 @@ fashion-recommender/
 
 ---
 
-
 ## Installation
 
-Clone the repository
+Clone the repository.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/fashion-recommender.git
+git clone https://github.com/MahdiChowdhuryGif/fashion-recommender.git
 ```
 
-Navigate to the project
+Navigate to the project.
 
 ```bash
 cd fashion-recommender
 ```
 
-Create a virtual environment
+Create a Python virtual environment.
 
 ```bash
 py -m venv venv
 ```
 
-Activate the environment
+Activate the virtual environment.
 
-Windows
+Windows:
 
 ```bash
 venv\Scripts\activate
 ```
 
-Install dependencies
+Install the required packages.
 
 ```bash
 pip install -r requirements.txt
@@ -186,15 +221,33 @@ pip install -r requirements.txt
 
 ---
 
+## Running the Pipeline
+
+Generate image embeddings and evaluate the recommendation system.
+
+```bash
+py run_pipeline.py
+```
+
+The pipeline will:
+
+- Validate the dataset
+- Generate ResNet-50 embeddings
+- Save image embeddings
+- Evaluate recommendation performance
+- Produce the evaluation report
+
+---
+
 ## Running the API
 
-Start the FastAPI server
+Start the FastAPI server.
 
 ```bash
 uvicorn app:app --reload
 ```
 
-Open
+Open:
 
 ```
 http://127.0.0.1:8000/docs
@@ -206,19 +259,19 @@ to access the interactive Swagger documentation.
 
 ## Running the Frontend
 
-Navigate to the frontend folder
+Navigate to the frontend folder.
 
 ```bash
 cd frontend
 ```
 
-Start a local web server
+Start a local web server.
 
 ```bash
 py -m http.server 5500
 ```
 
-Open
+Open:
 
 ```
 http://localhost:5500
@@ -232,7 +285,7 @@ http://localhost:5500
 
 Uploads a fashion image and returns the five most visually similar items.
 
-Example response
+Example response:
 
 ```json
 {
@@ -256,7 +309,6 @@ Example response
 
 ---
 
-
 ## Future Improvements
 
 Potential future enhancements include:
@@ -273,4 +325,4 @@ Potential future enhancements include:
 
 ## Author
 
-Developed as an Artificial Intelligence and Machine Learning project demonstrating computer vision, deep learning, API development, and full-stack web application development.
+Developed as an Artificial Intelligence and Machine Learning project demonstrating computer vision, deep learning, image retrieval, API development, cloud deployment, and full-stack web application development.
