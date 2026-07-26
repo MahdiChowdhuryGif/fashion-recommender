@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://fashion-recommender-1r1l.onrender.com";
 
 const imageInput = document.getElementById("image-input");
 const chooseBtn = document.getElementById("choose-btn");
