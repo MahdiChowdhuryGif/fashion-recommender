@@ -4,9 +4,9 @@ import os
 import time
 import pandas as pd
 
+from scripts.preprocess import verify_images
 from scripts.create_embeddings import main as create_embeddings
 from scripts.evaluate import main as evaluate
-
 
 # --------------------------------------------------
 # Dataset Mode
@@ -60,13 +60,7 @@ def print_header():
 
 def check_project():
 
-    print("\n[1/4] Checking project structure...\n")
-
-    if not VALID_IMAGES.exists():
-
-        raise FileNotFoundError(
-            f"Missing file:\n{VALID_IMAGES}"
-        )
+    print("\n[1/5] Checking project structure...\n")
 
     if not IMAGE_FOLDER.exists():
 
@@ -74,11 +68,19 @@ def check_project():
             f"Missing folder:\n{IMAGE_FOLDER}"
         )
 
+    image_count = len(list(IMAGE_FOLDER.glob("*.jpg")))
+
+    if image_count == 0:
+
+        raise RuntimeError(
+            "No images were found in the dataset folder."
+        )
+
     print("✓ Dataset found")
-    print("✓ Project structure verified")
+    print(f"✓ {image_count:,} images detected")
 
 
-def embeddings_exist():
+def embeddings_need_regeneration():
 
     embeddings = (
         PROJECT_ROOT /
@@ -94,7 +96,17 @@ def embeddings_exist():
         "image_filenames.csv"
     )
 
-    return embeddings.exists() and filenames.exists()
+    if not embeddings.exists() or not filenames.exists():
+        return True
+
+    try:
+        embedding_files = pd.read_csv(filenames)
+        valid_files = pd.read_csv(VALID_IMAGES)
+
+        return len(embedding_files) != len(valid_files)
+
+    except Exception:
+        return True
 
 
 def main():
@@ -125,14 +137,24 @@ def main():
     # Step 2
     # --------------------------------------------------
 
+    print("\n[2/5] Data Cleaning\n")
+
+    verify_images()
+
+    print("\n✓ Data cleaning completed successfully.")
+
+    # --------------------------------------------------
+    # Step 3
+    # --------------------------------------------------
+
     print(
-    f"\n[2/4] Image Embedding Generation "
-    f"({DATASET_MODE.title()} Mode)\n"
+        f"\n[3/5] Image Embedding Generation "
+        f"({DATASET_MODE.title()} Mode)\n"
     )
 
-    if embeddings_exist() and not args.force:
+    if not args.force and not embeddings_need_regeneration():
 
-        print("✓ Existing embeddings found")
+        print("✓ Existing embeddings match the cleaned dataset.")
         print("Skipping embedding generation.")
 
     else:
@@ -144,17 +166,17 @@ def main():
         print("\n✓ Embeddings generated successfully.")
 
     # --------------------------------------------------
-    # Step 3
+    # Step 4
     # --------------------------------------------------
 
-    print("\n[3/4] Model Evaluation\n")
+    print("\n[4/5] Model Evaluation\n")
 
     evaluate()
 
     print("\n✓ Evaluation completed successfully.")
 
     # --------------------------------------------------
-    # Step 4
+    # Step 5
     # --------------------------------------------------
 
     elapsed = time.time() - start_time
@@ -166,22 +188,31 @@ def main():
         "image_embeddings.npy"
     )
 
-    report_file = (
-        PROJECT_ROOT /
-        "data" /
-        "reports" /
-        "recommendation_results.png"
+    report_folder = (
+    PROJECT_ROOT /
+    "data" /
+    "reports"
+    )
+
+    report_files = sorted(
+    report_folder.glob("recommendation_*.png")
     )
 
     dataset_size = len(pd.read_csv(VALID_IMAGES))
 
-    print("\n[4/4] Pipeline Summary\n")
+    print("\n[5/5] Pipeline Summary\n")
 
     print(f"Dataset Mode          : {DATASET_MODE.title()}")
     print(f"Dataset Images        : {dataset_size:,}")
     print("Embedding Size        : 2048")
     print(f"Embeddings File       : {embedding_file}")
-    print(f"Evaluation Report     : {report_file}")
+    print("Evaluation Reports    :")
+
+    if report_files:
+        for report in report_files:
+         print(f"  {report}")
+    else:
+        print("  No evaluation reports found.")
     print(f"Total Execution Time  : {elapsed:.2f} seconds")
 
     print("\n✓ Pipeline completed successfully!")

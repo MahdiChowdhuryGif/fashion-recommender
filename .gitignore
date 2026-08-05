@@ -34,6 +34,9 @@ uploads/*
 
 data/raw/images/
 
+# Deployment dataset
+data/deployment/images/
+
 # Generated Reports
 
 data/reports/*.png

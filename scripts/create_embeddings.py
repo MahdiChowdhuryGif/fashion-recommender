@@ -103,54 +103,68 @@ def main():
     df = pd.read_csv(VALID_IMAGES)
 
     if TEST_MODE:
-
         filenames = df["filename"].tolist()[:TEST_SIZE]
-
     else:
-
         filenames = df["filename"].tolist()
 
-    num_images = len(filenames)
+    total_images = len(filenames)
 
-    print(f"Found {num_images:,} images.")
-
-    # ----------------------------------
-    # Create embedding array
-    # ----------------------------------
-
-    print("\nGenerating embeddings...\n")
-
-    embeddings = np.zeros(
-        (num_images, 2048),
-        dtype=np.float32
-    )
-
-    start_time = time.time()
+    print(f"Found {total_images:,} images.")
 
     # ----------------------------------
     # Generate embeddings
     # ----------------------------------
 
-    for i, filename in enumerate(filenames):
+    print("\nGenerating embeddings...\n")
+
+    successful_embeddings = []
+    successful_filenames = []
+    failed_images = []
+
+    start_time = time.time()
+
+    for i, filename in enumerate(filenames, start=1):
 
         image_path = IMAGE_FOLDER / filename
 
-        embeddings[i] = extractor.extract(image_path)
+        try:
 
-        if (i + 1) % 500 == 0 or (i + 1) == num_images:
+            embedding = extractor.extract(image_path)
+
+            successful_embeddings.append(embedding)
+            successful_filenames.append(filename)
+
+        except Exception as e:
+
+            print(f"Warning: Failed to process {filename}")
+            print(f"Reason : {e}")
+
+            failed_images.append(filename)
+            continue
+
+        if i % 500 == 0 or i == total_images:
 
             elapsed = time.time() - start_time
 
-            percent = ((i + 1) / num_images) * 100
+            percent = (i / total_images) * 100
 
             print(
-                f"{i + 1:,}/{num_images:,} "
+                f"{i:,}/{total_images:,} "
                 f"({percent:.1f}%) "
                 f"Elapsed: {elapsed:.1f}s"
             )
 
     # ----------------------------------
-    # Save embeddings
+    # Convert to NumPy array
+    # ----------------------------------
+
+    embeddings = np.array(
+        successful_embeddings,
+        dtype=np.float32
+    )
+
+    # ----------------------------------
+    # Save outputs
     # ----------------------------------
 
     print("\nSaving embeddings...")
@@ -162,7 +176,7 @@ def main():
 
     pd.DataFrame({
 
-        "filename": filenames
+        "filename": successful_filenames
 
     }).to_csv(
 
@@ -174,18 +188,35 @@ def main():
 
     elapsed = time.time() - start_time
 
+    # ----------------------------------
+    # Summary
+    # ----------------------------------
+
     print("\n----------------------------------------")
     print("Embedding Generation Complete")
     print("----------------------------------------")
 
-    print(f"Images processed : {num_images:,}")
+    print(f"Images requested : {total_images:,}")
+    print(f"Images embedded  : {len(successful_filenames):,}")
+    print(f"Failed images    : {len(failed_images):,}")
     print(f"Embedding shape  : {embeddings.shape}")
     print(f"Time taken       : {elapsed:.2f} seconds")
+
+    if failed_images:
+
+        print("\nFailed Images")
+
+        for image in failed_images[:20]:
+            print(f" - {image}")
+
+        if len(failed_images) > 20:
+            print(f"...and {len(failed_images) - 20} more.")
 
     print("\nSaved files:")
 
     print(f"Embeddings : {EMBEDDINGS_FILE}")
     print(f"Filenames  : {FILENAMES_FILE}")
+    print(f"Embeddings saved : {len(successful_filenames):,}")
 
 
 if __name__ == "__main__":

@@ -174,6 +174,8 @@ class FashionRecommender:
 
                 "similarity": similarity,
 
+                "cosine_similarity": round(similarity, 4),
+
                 "similarity_percent":
                     round(similarity * 100, 2)
 
