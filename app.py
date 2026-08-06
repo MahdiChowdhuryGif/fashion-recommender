@@ -87,19 +87,37 @@ UPLOAD_FOLDER.mkdir(exist_ok=True)
 # Validate required model files
 # --------------------------------------------------
 
-EMBEDDINGS_FILE = (
-    PROJECT_ROOT /
-    "data" /
-    "processed" /
-    "image_embeddings.npy"
-)
+if DATASET_MODE == "deployment":
 
-FILENAMES_FILE = (
-    PROJECT_ROOT /
-    "data" /
-    "processed" /
-    "image_filenames.csv"
-)
+    EMBEDDINGS_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "image_embeddings.npy"
+    )
+
+    FILENAMES_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "image_filenames.csv"
+    )
+
+else:
+
+    EMBEDDINGS_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "processed" /
+        "image_embeddings.npy"
+    )
+
+    FILENAMES_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "processed" /
+        "image_filenames.csv"
+    )
 
 if not EMBEDDINGS_FILE.exists():
 
@@ -107,7 +125,7 @@ if not EMBEDDINGS_FILE.exists():
 
         f"\nMissing embedding file:\n"
         f"{EMBEDDINGS_FILE}\n\n"
-        "Run 'py run_pipeline.py' before starting the API."
+        "Run the embedding generation before starting the API."
 
     )
 
@@ -117,11 +135,13 @@ if not FILENAMES_FILE.exists():
 
         f"\nMissing filename index:\n"
         f"{FILENAMES_FILE}\n\n"
-        "Run 'py run_pipeline.py' before starting the API."
+        "Run the embedding generation before starting the API."
 
     )
 
 print("STEP 3: Embedding files validated")
+print(f"Embeddings : {EMBEDDINGS_FILE}")
+print(f"Filenames  : {FILENAMES_FILE}")
 
 # --------------------------------------------------
 # Serve dataset images

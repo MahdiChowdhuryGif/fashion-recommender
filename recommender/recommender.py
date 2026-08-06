@@ -52,25 +52,44 @@ class FashionRecommender:
         # Embedding Files
         # ----------------------------------
 
-        embeddings_file = (
-            self.project_root /
-            "data" /
-            "processed" /
-            "image_embeddings.npy"
-        )
+        if dataset_mode == "deployment":
 
-        filenames_file = (
-            self.project_root /
-            "data" /
-            "processed" /
-            "image_filenames.csv"
-        )
+            embeddings_file = (
+                self.project_root /
+                "data" /
+                "deployment" /
+                "image_embeddings.npy"
+            )
 
-        print("Loading embeddings...")
+            filenames_file = (
+                self.project_root /
+                "data" /
+                "deployment" /
+                "image_filenames.csv"
+            )
+
+        else:
+
+            embeddings_file = (
+                self.project_root /
+                "data" /
+                "processed" /
+                "image_embeddings.npy"
+            )
+
+            filenames_file = (
+                self.project_root /
+                "data" /
+                "processed" /
+                "image_filenames.csv"
+            )
+
+        print("\nLoading embeddings...")
 
         self.embeddings = np.load(embeddings_file)
 
-        print(f"Embedding dtype: {self.embeddings.dtype}")
+        print(f"Embedding dtype : {self.embeddings.dtype}")
+        print(f"Embedding shape : {self.embeddings.shape}")
 
         self.filenames = (
             pd.read_csv(filenames_file)["filename"]
@@ -79,9 +98,9 @@ class FashionRecommender:
 
         self.extractor = FeatureExtractor()
 
-        print(
-            f"Loaded {len(self.filenames):,} image embeddings."
-        )
+        print(f"Loaded {len(self.filenames):,} image embeddings.")
+        print(f"Embeddings file : {embeddings_file}")
+        print(f"Filenames file  : {filenames_file}")
 
     def recommend(
         self,

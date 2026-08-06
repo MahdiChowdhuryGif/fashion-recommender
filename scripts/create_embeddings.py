@@ -63,11 +63,25 @@ def main():
             "images"
         )
 
-    OUTPUT_DIR = (
-        PROJECT_ROOT /
-        "data" /
-        "processed"
-    )
+    # ----------------------------------
+    # Output location
+    # ----------------------------------
+
+    if DEPLOYMENT_MODE:
+
+        OUTPUT_DIR = (
+            PROJECT_ROOT /
+            "data" /
+            "deployment"
+        )
+
+    else:
+
+        OUTPUT_DIR = (
+            PROJECT_ROOT /
+            "data" /
+            "processed"
+        )
 
     OUTPUT_DIR.mkdir(
         parents=True,

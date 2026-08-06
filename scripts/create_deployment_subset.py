@@ -2,13 +2,17 @@ from pathlib import Path
 import shutil
 
 import pandas as pd
+from PIL import Image
 
 # ----------------------------------
 # Configuration
 # ----------------------------------
 
-SUBSET_SIZE = 2000       # Change this if you want a different deployment size
-RANDOM_SEED = 42         # Keeps the same random sample every run
+SUBSET_SIZE = 10000
+RANDOM_SEED = 42
+
+THUMBNAIL_SIZE = (256, 256)
+JPEG_QUALITY = 85
 
 # ----------------------------------
 # Paths
@@ -47,60 +51,54 @@ DEPLOYMENT_CSV = (
 )
 
 # ----------------------------------
-# Create folders
+# Prepare deployment folder
 # ----------------------------------
 
-if DEPLOYMENT_IMAGES.exists():
-
-    shutil.rmtree(DEPLOYMENT_IMAGES)
-
-DEPLOYMENT_FOLDER.mkdir(
-    parents=True,
-    exist_ok=True
-)
+if DEPLOYMENT_FOLDER.exists():
+    shutil.rmtree(DEPLOYMENT_FOLDER)
 
 DEPLOYMENT_IMAGES.mkdir(
     parents=True,
     exist_ok=True
 )
+
 # ----------------------------------
-# Load cleaned image list
+# Load cleaned dataset
 # ----------------------------------
 
 print("\nLoading cleaned image list...")
 
 df = pd.read_csv(VALID_IMAGES)
 
-print(f"Dataset contains {len(df):,} valid images.")
+print(f"Dataset contains {len(df):,} cleaned images.")
 
 # ----------------------------------
-# Validate subset size
+# Validate configuration
 # ----------------------------------
 
 if SUBSET_SIZE > len(df):
 
     raise ValueError(
-        f"Subset size ({SUBSET_SIZE}) is larger than "
-        f"the dataset ({len(df)})."
+        f"Subset size ({SUBSET_SIZE}) exceeds "
+        f"dataset size ({len(df)})."
     )
 
 # ----------------------------------
-# Select random subset
+# Create reproducible subset
 # ----------------------------------
 
 print(
-    f"\nSelecting {SUBSET_SIZE:,} images "
-    f"(Random Seed = {RANDOM_SEED})..."
+    f"\nSelecting {SUBSET_SIZE:,} deployment images..."
 )
 
-subset = df.sample(
-    n=SUBSET_SIZE,
-    random_state=RANDOM_SEED
-).reset_index(drop=True)
-
-# ----------------------------------
-# Save deployment CSV
-# ----------------------------------
+subset = (
+    df.sample(
+        n=SUBSET_SIZE,
+        random_state=RANDOM_SEED
+    )
+    .sort_values("filename")
+    .reset_index(drop=True)
+)
 
 subset.to_csv(
     DEPLOYMENT_CSV,
@@ -110,47 +108,81 @@ subset.to_csv(
 print("Deployment CSV created.")
 
 # ----------------------------------
-# Copy images
+# Generate deployment thumbnails
 # ----------------------------------
 
-print("\nCopying deployment images...")
+print("\nGenerating deployment images...")
 
-copied = 0
+processed = 0
 missing = 0
+failed = 0
 
 for filename in subset["filename"]:
 
     source = RAW_IMAGES / filename
     destination = DEPLOYMENT_IMAGES / filename
 
-    if source.exists():
-
-        shutil.copy2(
-            source,
-            destination
-        )
-
-        copied += 1
-
-    else:
+    if not source.exists():
 
         missing += 1
-
         print(f"Missing image: {filename}")
+        continue
+
+    try:
+
+        with Image.open(source) as image:
+
+            image = image.convert("RGB")
+
+            image.thumbnail(
+                THUMBNAIL_SIZE,
+                Image.Resampling.LANCZOS
+            )
+
+            image.save(
+                destination,
+                format="JPEG",
+                quality=JPEG_QUALITY,
+                optimize=True
+            )
+
+        processed += 1
+
+    except Exception as e:
+
+        failed += 1
+        print(f"Failed: {filename} ({e})")
+
+# ----------------------------------
+# Verify deployment dataset
+# ----------------------------------
+
+deployment_images = list(
+    DEPLOYMENT_IMAGES.glob("*.jpg")
+)
 
 # ----------------------------------
 # Summary
 # ----------------------------------
 
-print("\n----------------------------------------")
+print("\n========================================")
 print("Deployment Dataset Created Successfully")
-print("----------------------------------------")
+print("========================================")
 
-print(f"Images selected : {len(subset):,}")
-print(f"Images copied   : {copied:,}")
-print(f"Missing images  : {missing:,}")
+print(f"Subset size          : {SUBSET_SIZE:,}")
+print(f"Images processed     : {processed:,}")
+print(f"Images verified      : {len(deployment_images):,}")
+print(f"Missing source files : {missing:,}")
+print(f"Failed conversions   : {failed:,}")
 
 print("\nCreated:")
 
 print(f"CSV    : {DEPLOYMENT_CSV}")
 print(f"Images : {DEPLOYMENT_IMAGES}")
+
+print("\nNext step:")
+
+print(
+    "Run the embedding generator in deployment mode "
+    "to create deployment embeddings."
+)

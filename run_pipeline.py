@@ -32,6 +32,20 @@ if DATASET_MODE == "deployment":
         "valid_images.csv"
     )
 
+    EMBEDDINGS_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "image_embeddings.npy"
+    )
+
+    FILENAMES_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "deployment" /
+        "image_filenames.csv"
+    )
+
 else:
 
     IMAGE_FOLDER = (
@@ -46,6 +60,20 @@ else:
         "data" /
         "processed" /
         "valid_images.csv"
+    )
+
+    EMBEDDINGS_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "processed" /
+        "image_embeddings.npy"
+    )
+
+    FILENAMES_FILE = (
+        PROJECT_ROOT /
+        "data" /
+        "processed" /
+        "image_filenames.csv"
     )
 
 
@@ -82,30 +110,18 @@ def check_project():
 
 def embeddings_need_regeneration():
 
-    embeddings = (
-        PROJECT_ROOT /
-        "data" /
-        "processed" /
-        "image_embeddings.npy"
-    )
-
-    filenames = (
-        PROJECT_ROOT /
-        "data" /
-        "processed" /
-        "image_filenames.csv"
-    )
-
-    if not embeddings.exists() or not filenames.exists():
+    if not EMBEDDINGS_FILE.exists() or not FILENAMES_FILE.exists():
         return True
 
     try:
-        embedding_files = pd.read_csv(filenames)
+
+        embedding_files = pd.read_csv(FILENAMES_FILE)
         valid_files = pd.read_csv(VALID_IMAGES)
 
         return len(embedding_files) != len(valid_files)
 
     except Exception:
+
         return True
 
 
@@ -181,21 +197,14 @@ def main():
 
     elapsed = time.time() - start_time
 
-    embedding_file = (
+    report_folder = (
         PROJECT_ROOT /
         "data" /
-        "processed" /
-        "image_embeddings.npy"
-    )
-
-    report_folder = (
-    PROJECT_ROOT /
-    "data" /
-    "reports"
+        "reports"
     )
 
     report_files = sorted(
-    report_folder.glob("recommendation_*.png")
+        report_folder.glob("recommendation_*.png")
     )
 
     dataset_size = len(pd.read_csv(VALID_IMAGES))
@@ -205,14 +214,21 @@ def main():
     print(f"Dataset Mode          : {DATASET_MODE.title()}")
     print(f"Dataset Images        : {dataset_size:,}")
     print("Embedding Size        : 2048")
-    print(f"Embeddings File       : {embedding_file}")
-    print("Evaluation Reports    :")
+    print(f"Embeddings File       : {EMBEDDINGS_FILE}")
+    print(f"Filename Index        : {FILENAMES_FILE}")
+
+    print("Evaluation Reports:")
 
     if report_files:
+
         for report in report_files:
-         print(f"  {report}")
+
+            print(f"  {report}")
+
     else:
+
         print("  No evaluation reports found.")
+
     print(f"Total Execution Time  : {elapsed:.2f} seconds")
 
     print("\n✓ Pipeline completed successfully!")
