@@ -4,6 +4,8 @@ const imageInput = document.getElementById("image-input");
 const chooseBtn = document.getElementById("choose-btn");
 const recommendBtn = document.getElementById("recommend-btn");
 
+const dashboard = document.querySelector(".dashboard");
+
 const preview = document.getElementById("preview");
 const placeholder = document.getElementById("placeholder");
 const dropArea = document.getElementById("drop-area");
@@ -100,6 +102,10 @@ dropArea.addEventListener("drop", e => {
 // -------------------------------
 
 function showPreview(file){
+
+    const dashboard = document.querySelector(".dashboard");
+
+    dashboard.classList.add("active");
 
     const reader = new FileReader();
 

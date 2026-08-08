@@ -15,8 +15,6 @@
 
 <body>
 
-<div class="page">
-
     <!-- ================= HEADER ================= -->
 
     <header class="hero">
@@ -30,123 +28,170 @@
 
     </header>
 
+
     <!-- ================= MAIN ================= -->
 
     <main>
 
-        <!-- Upload Panel -->
+        <!-- ========================================= -->
+        <!-- DASHBOARD -->
+        <!-- ========================================= -->
 
-        <section class="upload-panel">
+        <section class="dashboard">
 
-            <div id="drop-area">
+            <!-- ========================================= -->
+            <!-- LEFT COLUMN -->
+            <!-- ========================================= -->
 
-                <div id="placeholder">
+            <div class="dashboard-left">
 
-                    <div class="upload-icon">
-                        ☁
+                <!-- Upload Panel -->
+
+                <section class="upload-panel">
+
+                    <div id="drop-area">
+
+                        <div id="placeholder">
+
+                            <div class="upload-icon">
+                                ☁
+                            </div>
+
+                            <h2>Drag & Drop an Image</h2>
+
+                            <p>
+                                or click anywhere below to browse
+                            </p>
+
+                        </div>
+
+                        <img
+                            id="preview"
+                            alt="Preview"
+                        >
+
                     </div>
 
-                    <h2>Drag & Drop an Image</h2>
 
-                    <p>or click anywhere below to browse</p>
+                    <input
+                        id="image-input"
+                        type="file"
+                        accept="image/*"
+                        hidden
+                    >
 
-                </div>
 
-                <img
-                    id="preview"
-                    alt="Preview"
+                    <div class="upload-buttons">
+
+                        <button id="choose-btn">
+                            Choose Image
+                        </button>
+
+                        <button
+                            id="recommend-btn"
+                            disabled
+                        >
+                            Get Recommendations
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Image Information -->
+
+                <section
+                    id="image-info"
+                    class="image-info hidden"
                 >
 
+                    <h2>Uploaded Image</h2>
+
+                    <div class="info-grid">
+
+                        <div>
+
+                            <strong>Filename</strong>
+
+                            <p id="file-name">-</p>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>File Size</strong>
+
+                            <p id="file-size">-</p>
+
+                        </div>
+
+
+                        <div>
+
+                            <strong>Resolution</strong>
+
+                            <p id="image-resolution">-</p>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
             </div>
 
-            <input
-                id="image-input"
-                type="file"
-                accept="image/*"
-                hidden
-            >
 
-            <div class="upload-buttons">
+            <!-- ========================================= -->
+            <!-- RIGHT COLUMN -->
+            <!-- ========================================= -->
 
-                <button id="choose-btn">
+            <div class="dashboard-right">
 
-                    Choose Image
+                <!-- Loading -->
 
-                </button>
-
-                <button
-                    id="recommend-btn"
-                    disabled
+                <section
+                    id="loading"
+                    class="loading hidden"
                 >
 
-                    Get Recommendations
+                    <div class="spinner"></div>
 
-                </button>
+                    <h2>
+                        Generating Recommendations...
+                    </h2>
 
-            </div>
+                    <p id="loading-text">
+                        Extracting image features...
+                    </p>
 
-        </section>
+                </section>
 
-        <!-- Image Information -->
 
-        <section
-            id="image-info"
-            class="image-info hidden"
-        >
+                <!-- ========================================= -->
+                <!-- RECOMMENDATIONS -->
+                <!-- ========================================= -->
 
-            <h2>Uploaded Image</h2>
+                <section class="recommendation-section">
 
-            <div class="info-grid">
+                    <h2>
+                        Top Recommendations
+                    </h2>
 
-                <div>
+                    <div id="results">
 
-                    <strong>Filename</strong>
+                    </div>
 
-                    <p id="file-name">-</p>
-
-                </div>
-
-                <div>
-
-                    <strong>File Size</strong>
-
-                    <p id="file-size">-</p>
-
-                </div>
-
-                <div>
-
-                    <strong>Resolution</strong>
-
-                    <p id="image-resolution">-</p>
-
-                </div>
+                </section>
 
             </div>
 
         </section>
 
-        <!-- Loading -->
-
-        <section
-            id="loading"
-            class="loading hidden"
-        >
-
-            <div class="spinner"></div>
-
-            <h2>Generating Recommendations...</h2>
-
-            <p id="loading-text">
-
-                Extracting image features...
-
-            </p>
-
-        </section>
 
         <!-- ========================================= -->
-        <!-- AI PROCESSING SUMMARY  -->
+        <!-- AI PROCESSING SUMMARY -->
         <!-- ========================================= -->
 
         <section
@@ -154,7 +199,9 @@
             class="summary-panel hidden"
         >
 
-            <h2>AI Processing Summary</h2>
+            <h2>
+                AI Processing Summary
+            </h2>
 
             <div
                 id="summary-grid"
@@ -165,66 +212,52 @@
 
         </section>
 
-        <!-- ========================================= -->
-        <!-- RECOMMENDATIONS -->
-        <!-- ========================================= -->
-
-        <section class="recommendation-section">
-
-            <h2>Top Recommendations</h2>
-
-            <div id="results">
-
-            </div>
-
-        </section>
-
     </main>
+
 
     <!-- ================= FOOTER ================= -->
 
     <footer>
 
         <p>
-
             Fashion Recommendation AI
-
         </p>
 
         <small>
-
             Powered by FastAPI • PyTorch • ResNet-50 • Cosine Similarity
-
         </small>
 
     </footer>
 
-</div>
 
-<!-- ================= MODAL ================= -->
+    <!-- ================= MODAL ================= -->
 
-<div
-    id="modal"
-    class="modal hidden"
->
+    <div
+        id="modal"
+        class="hidden"
+    >
 
-    <div class="modal-content">
+        <div class="modal-content">
 
-        <span id="close-modal">
+            <span id="close-modal">
+                &times;
+            </span>
 
-            &times;
+            <img
+                id="modal-image"
+                alt="Full recommendation"
+            >
 
-        </span>
+            <h3 id="modal-title"></h3>
 
-        <img id="modal-image">
-
-        <h3 id="modal-title"></h3>
+        </div>
 
     </div>
 
-</div>
 
-<script src="js/app.js"></script>
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="js/app.js"></script>
 
 </body>
 
